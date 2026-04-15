@@ -127,6 +127,13 @@ header h1{font-size:22px;color:#f0c040}header p{color:#666;font-size:11px;margin
       <marker id="ap" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#ce93d8" opacity=".9"/></marker>
     </defs></svg>
   </div><div class="cr"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div></div></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;flex-wrap:wrap">
+    <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#4caf50"></span>控制</span>
+    <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ef5350"></span>攻击</span>
+    <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ffa726"></span>弱点</span>
+    <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#42a5f5"></span>计划</span>
+    <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ce93d8"></span>🐟最佳</span>
+  </div>
   <div class="ctrl"><div class="cb" onclick="goF()">⏮</div><div class="cb" onclick="goP()">◀</div><div class="cb" onclick="goN()">▶</div><div class="cb" onclick="goL()">⏭</div></div>
   <div class="si" id="si">0/0</div>
   <div class="ml" id="ml"></div>
@@ -138,8 +145,23 @@ header h1{font-size:22px;color:#f0c040}header p{color:#666;font-size:11px;margin
   <div class="btabs" id="btabs"></div>
   <div class="bbrd-area">
     <div><div class="bg"><div class="cc"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
-    <div><div class="brd" id="bb"></div><div class="cr"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div></div></div>
-    <div class="bscroll-hint">🖱️ 在右侧棋盘上滚轮回放分支</div></div>
+    <div><div class="brd-o"><div class="brd" id="bb"></div>
+      <svg class="asvg" id="asvg2" viewBox="0 0 320 320"><defs>
+        <marker id="ag2" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#4caf50" opacity=".85"/></marker>
+        <marker id="ar2" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#ef5350" opacity=".85"/></marker>
+        <marker id="ao2" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#ffa726" opacity=".85"/></marker>
+        <marker id="ab2" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#42a5f5" opacity=".85"/></marker>
+        <marker id="ap2" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#ce93d8" opacity=".9"/></marker>
+      </defs></svg>
+    </div><div class="cr"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div></div></div>
+    <div class="bscroll-hint">🖱️ 在右侧棋盘上滚轮回放分支</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#4caf50"></span>控制</span>
+      <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ef5350"></span>攻击</span>
+      <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ffa726"></span>弱点</span>
+      <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#42a5f5"></span>计划</span>
+      <span style="font-size:10px;color:#888;display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:3px;border-radius:2px;background:#ce93d8"></span>🐟最佳</span>
+    </div></div>
     <div class="bline" id="bline"></div>
   </div>
   <div class="rsc" id="rsc"><div class="ml">选择分支</div><div class="ct">点击上方的分支标签查看后续发展</div></div>
@@ -469,10 +491,12 @@ function dB(id,fen,fs,ts){
   }
 }
 
-function dA(arrows){
-  const svg=document.getElementById('asvg'),defs=svg.querySelector('defs');svg.innerHTML='';svg.appendChild(defs);
+function drawArrowsOn(svgId, arrows, markerSuffix){
+  const svg=document.getElementById(svgId);if(!svg)return;
+  const defs=svg.querySelector('defs');svg.innerHTML='';svg.appendChild(defs);
   const cols={green:'#4caf50',red:'#ef5350',orange:'#ffa726',blue:'#42a5f5',purple:'#ce93d8'};
-  const mids={green:'ag',red:'ar',orange:'ao',blue:'ab',purple:'ap'};
+  const sfx=markerSuffix||'';
+  const mids={green:'ag'+sfx,red:'ar'+sfx,orange:'ao'+sfx,blue:'ab'+sfx,purple:'ap'+sfx};
   for(const a of arrows){
     const p1=c2xy(a.from),p2=c2xy(a.to),dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.sqrt(dx*dx+dy*dy);
     if(len<1)continue;
@@ -482,8 +506,53 @@ function dA(arrows){
     l.setAttribute('stroke',cols[a.color]||'#888');
     l.setAttribute('stroke-width',a.color==='purple'?'6':'4');
     l.setAttribute('stroke-linecap','round');l.setAttribute('opacity','0.7');
-    l.setAttribute('marker-end','url(#'+(mids[a.color]||'ag')+')');
+    l.setAttribute('marker-end','url(#'+mids[a.color]+')');
     svg.appendChild(l);
+  }
+}
+function dA(arrows){ drawArrowsOn('asvg', arrows, ''); }
+function dA2(arrows){ drawArrowsOn('asvg2', arrows, '2'); }
+
+// Generate intent arrows for a branch move based on from/to squares and eval change
+function branchArrows(fromSq, toSq, cp, prevCp, isWhiteMove) {
+  const arrows = [];
+  if (!fromSq || !toSq) return arrows;
+  // The move itself as purple (SF recommended line)
+  arrows.push({from: fromSq, to: toSq, color: 'purple'});
+  // Analyze intent based on eval change
+  const delta = cp - prevCp;
+  if (isWhiteMove) {
+    if (delta > 15) {
+      // White improving = attack/control
+      arrows.push({from: toSq, to: guessTarget(toSq, true), color: 'green'});
+    } else if (delta < -15) {
+      // White worsening = weakness exposed
+      arrows.push({from: toSq, to: guessTarget(toSq, false), color: 'orange'});
+    }
+  } else {
+    if (delta < -15) {
+      // Black improving (cp drops) = black attacking
+      arrows.push({from: toSq, to: guessTarget(toSq, true), color: 'red'});
+    } else if (delta > 15) {
+      // Black worsening = black exposed weakness
+      arrows.push({from: toSq, to: guessTarget(toSq, false), color: 'orange'});
+    }
+  }
+  return arrows;
+}
+
+// Guess a target square based on piece location (simple heuristic for visual arrows)
+function guessTarget(sq, attacking) {
+  const f = sq.charCodeAt(0) - 97; // 0-7
+  const r = parseInt(sq[1]); // 1-8
+  if (attacking) {
+    // Point toward opponent's king area
+    if (r <= 4) return String.fromCharCode(97 + Math.min(7, f+1)) + Math.min(8, r+2); // black attacking upward
+    else return String.fromCharCode(97 + Math.min(7, f)) + Math.max(1, r-2); // white attacking downward
+  } else {
+    // Point backward (retreat direction)
+    if (r <= 4) return String.fromCharCode(97 + f) + Math.max(1, r-1);
+    else return String.fromCharCode(97 + f) + Math.min(8, r+1);
   }
 }
 
@@ -731,23 +800,31 @@ function renderBranch(){
   const branches=sfV[curS].b||[];
   const br=branches[curBr];if(!br)return;
   const line=br.l||[];
-  
-  // Build timeline
+
   const bl=document.getElementById('bline');let h='';
   const startCp=br.c;
-  
-  // Show the branch starting move
-  h+=`<div class="bstep${curBrS===-1?' a':''}" onclick="goBrS(-1)">`;
-  h+=`<span class="sn">${br.s}</span>`;
   const cpStr=(startCp>=0?'+':'')+(startCp/100).toFixed(2);
+
+  // Step 0: current position (same as left board)
+  h+=`<div class="bstep${rpScrollStep===0?' a':''}" onclick="goBrS(0)">`;
+  h+=`<span class="sn">当前局面</span>`;
+  h+=`<span class="cv ${startCp>20?'pos':startCp<-20?'neg':'ev'}">${cpStr}</span>`;
+  h+=`<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+startCp/6))}%;background:${startCp>0?'#4caf50':'#ef5350'}"></div></div>`;
+  h+=`</div>`;
+
+  // Step 1: the branch's first move
+  h+=`<div class="bstep${rpScrollStep===1?' a':''}" onclick="goBrS(1)">`;
+  h+=`<span class="sn">${br.s}</span>`;
   h+=`<span class="cv ${startCp>20?'pos':startCp<-20?'neg':'ev'}">${cpStr}</span>`;
   h+=`<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+startCp/6))}%;background:${startCp>0?'#4caf50':'#ef5350'}"></div></div>`;
   if(curBr===0)h+=`<span class="tag best">最佳</span>`;
   h+=`</div>`;
-  
+
+  // Steps 2+: continuation line
   line.forEach((p,i)=>{
+    const stepN = i + 2;
     const isDrop=i===br.wi&&br.wd>30;
-    h+=`<div class="bstep${curBrS===i?' a':''}${isDrop?' drop':''}" onclick="goBrS(${i})">`;
+    h+=`<div class="bstep${rpScrollStep===stepN?' a':''}${isDrop?' drop':''}" onclick="goBrS(${stepN})">`;
     h+=`<span class="sn">${p.s}</span>`;
     const cv=(p.c>=0?'+':'')+(p.c/100).toFixed(2);
     h+=`<span class="cv ${p.c>20?'pos':p.c<-20?'neg':'ev'}">${cv}</span>`;
@@ -756,25 +833,57 @@ function renderBranch(){
     h+=`</div>`;
   });
   bl.innerHTML=h;
-  
-  // Render the board at current branch step
-  if(curBrS===-1){
-    // Show the main position (current main board step)
+
+  // Render right board based on rpScrollStep
+  if(rpScrollStep <= 0){
+    // Step 0: same as left board
     const step=V[curV].mv[curS];
     dB('bb',step.fen,step.f,step.t);
-    document.getElementById('rsc').innerHTML=`<div class="ml">🐟 分支起点：${br.s} (${cpStr})</div><div class="ct">向下滚轮查看这个分支接下来的每一步发展。红色标注的步骤是评分下降最大的关键转折点。</div>`;
-  }else if(line[curBrS]){
-    dB('bb',line[curBrS].f,'','');
-    const p=line[curBrS];
-    const cv=(p.c>=0?'+':'')+(p.c/100).toFixed(2);
-    const isDrop=curBrS===br.wi&&br.wd>30;
-    let explain=`第 ${curBrS+1} 步续招：${p.s}　评分：${cv}`;
-    if(isDrop)explain+=`\n\n⚠️ 这是丢分最多的关键步骤！评分变化 ${(br.wd/100).toFixed(1)}。这是 Alpha-Beta 在分析其他分支时会作为"反驳"参考的局面——如果这条线导致如此大的评分波动，引擎会优先考虑更稳定的分支。`;
-    document.getElementById('rsc').innerHTML=`<div class="ml">${p.s}　${cv}</div><div class="ct">${explain.replace(/\n/g,'<br>')}</div>`;
+    // Draw same arrows as left board + SF best arrow
+    let arrows=[...(step.a||[])];
+    if(br.fr&&br.to) arrows.push({from:br.fr,to:br.to,color:'purple'});
+    dA2(arrows);
+    document.getElementById('rsc').innerHTML=`<div class="ml">当前局面 · 🐟推荐 ${br.s} (${cpStr})</div><div class="ct">与左侧棋盘同步。向下滚轮查看 ${br.s} 之后的发展。\n\n🟢控制 🔴攻击 🟠弱点 🔵计划 🟣SF最佳</div>`;
+  } else if(rpScrollStep === 1){
+    // Step 1: after the branch move, show on the board
+    if(line.length > 0){
+      dB('bb',line[0].f,'','');
+      const arrows = branchArrows(br.fr, br.to, line[0].c, startCp, sfV[curS].t==='w');
+      dA2(arrows);
+    } else {
+      const step=V[curV].mv[curS];
+      dB('bb',step.fen,step.f,step.t);
+      dA2([{from:br.fr,to:br.to,color:'purple'}]);
+    }
+    document.getElementById('rsc').innerHTML=`<div class="ml">${br.s}　${cpStr}</div><div class="ct">分支起点。继续滚轮查看后续发展。</div>`;
+  } else {
+    const lineIdx = rpScrollStep - 2;
+    if(line[lineIdx]){
+      dB('bb',line[lineIdx].f,'','');
+      // Draw intent arrows
+      const prevCp = lineIdx > 0 ? line[lineIdx-1].c : startCp;
+      const isWhite = lineIdx % 2 === (sfV[curS].t==='w' ? 1 : 0);
+      const arrows = branchArrows('','', line[lineIdx].c, prevCp, isWhite);
+      // Also add SF best move arrow if available from branches
+      if(br.fr&&br.to) arrows.push({from:br.fr,to:br.to,color:'blue'});
+      dA2(arrows.filter(a=>a.from&&a.to));
+
+      const p=line[lineIdx];
+      const cv=(p.c>=0?'+':'')+(p.c/100).toFixed(2);
+      const isDrop=lineIdx===br.wi&&br.wd>30;
+      let explain=`第 ${lineIdx+1} 步续招：${p.s}　评分：${cv}`;
+      if(isDrop)explain+=`\n\n⚠️ 关键转折！评分变化 ${(br.wd/100).toFixed(1)}。`;
+      if(p.c > prevCp + 20) explain+=`\n🟢 白方改善了局面`;
+      else if(p.c < prevCp - 20) explain+=`\n🔴 黑方获得了优势`;
+      document.getElementById('rsc').innerHTML=`<div class="ml">${p.s}　${cv}</div><div class="ct">${explain.replace(/\n/g,'<br>')}</div>`;
+    }
   }
+
+  // Highlight active step
+  document.querySelectorAll('#bline .bstep').forEach((el,i)=>el.classList.toggle('a',i===rpScrollStep));
 }
 
-function goBrS(i){curBrS=i;renderBranch();}
+function goBrS(i){rpScrollStep=i;renderBranch();}
 
 function renderStep(dir){
   const v=V[curV],step=v.mv[curS];
@@ -881,25 +990,16 @@ document.getElementById('rp')?.addEventListener('wheel',e=>{
       // at 0 or below: do nothing, stay on first step
     }
   } else {
-    // Scrolling through SF branch PV line
+    // Scrolling through SF branch — now uses renderBranch() which handles arrows + step 0
     if (!sfV || !sfV[curS]) return;
     const br = sfV[curS].b?.[curBr];
     if (!br || !br.l) return;
-    const maxS = br.l.length - 1;
+    const maxS = br.l.length + 1; // step 0=current, 1=branch move, 2..N+1=continuation
 
     if (e.deltaY > 0) {
-      if (rpScrollStep < maxS) {
-        rpScrollStep++;
-        dB('bb', br.l[rpScrollStep].f, '', '');
-        document.querySelectorAll('#bline .bstep').forEach((el, i) => el.classList.toggle('a', i === rpScrollStep + 1));
-      }
+      if (rpScrollStep < maxS) { rpScrollStep++; renderBranch(); }
     } else {
-      if (rpScrollStep > 0) {
-        rpScrollStep--;
-        dB('bb', br.l[rpScrollStep].f, '', '');
-        document.querySelectorAll('#bline .bstep').forEach((el, i) => el.classList.toggle('a', i === rpScrollStep + 1));
-      }
-      // at 0 or below: do nothing, stay on first step
+      if (rpScrollStep > 0) { rpScrollStep--; renderBranch(); }
     }
   }
 },{passive:false});
