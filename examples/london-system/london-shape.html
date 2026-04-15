@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>伦敦体系 · 理想阵型 Shape</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh}
+.ctn{max-width:1100px;margin:0 auto;padding:20px}
+a.back{color:#4fc3f7;font-size:12px;text-decoration:none;display:inline-block;margin-bottom:12px}
+a.back:hover{text-decoration:underline}
+header{text-align:center;margin-bottom:24px}
+header h1{font-size:26px;color:#f0c040}
+header p{color:#888;font-size:13px;margin-top:4px}
+
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:20px 0}
+@media(max-width:800px){.dual{grid-template-columns:1fr}}
+.panel{background:#16213e;border-radius:12px;padding:18px}
+.panel h2{font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel h2.good{color:#4caf50}.panel h2.bad{color:#ef5350}
+
+/* Board */
+.brd{display:grid;grid-template-columns:repeat(8,44px);grid-template-rows:repeat(8,44px);border:2px solid #555;border-radius:4px;margin:0 auto 8px;width:fit-content;position:relative}
+.brd .s{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:32px;user-select:none;position:relative}
+.brd .s.l{background:#e8d5a8}.brd .s.d{background:#b58863}
+.brd .s.wp{color:#fff;text-shadow:0 0 3px rgba(0,0,0,.7)}.brd .s.bp{color:#1a1a1a}
+.brd .s.glow-green{box-shadow:inset 0 0 0 3px #4caf50}
+.brd .s.glow-gold{box-shadow:inset 0 0 0 3px #f0c040}
+.brd .s.glow-red{box-shadow:inset 0 0 0 3px #ef5350}
+.brd .s.glow-blue{box-shadow:inset 0 0 0 3px #42a5f5}
+.cr{display:flex;justify-content:space-around;width:352px;margin:0 auto;padding-top:1px}
+.cr span{font-size:9px;color:#555;width:44px;text-align:center}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.legend span{font-size:11px;color:#aaa;display:flex;align-items:center;gap:4px}
+.legend .sq{width:14px;height:14px;border-radius:3px;border:2px solid}
+
+/* Piece cards */
+.pieces{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:16px}
+.pc{background:#0d1520;border-radius:8px;padding:12px;border-left:4px solid}
+.pc h3{font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.pc .icon{font-size:22px}
+.pc p{font-size:12px;color:#bbb;line-height:1.5}
+.pc.bf4{border-color:#4caf50}.pc.bf4 h3{color:#4caf50}
+.pc.bd3{border-color:#f0c040}.pc.bd3 h3{color:#f0c040}
+.pc.nd2{border-color:#42a5f5}.pc.nd2 h3{color:#42a5f5}
+.pc.nf3{border-color:#ce93d8}.pc.nf3 h3{color:#ce93d8}
+.pc.qe2{border-color:#ffa726}.pc.qe2 h3{color:#ffa726}
+.pc.pawn{border-color:#78909c}.pc.pawn h3{color:#78909c}
+
+/* Objective section */
+.obj{background:#16213e;border-radius:12px;padding:20px;margin:20px 0}
+.obj h2{color:#f0c040;font-size:18px;margin-bottom:12px}
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:#333}
+.tl-step{position:relative;margin-bottom:16px;padding-left:16px}
+.tl-step::before{content:'';position:absolute;left:-20px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid}
+.tl-step.done::before{background:#4caf50;border-color:#4caf50}
+.tl-step.active::before{background:#f0c040;border-color:#f0c040}
+.tl-step.future::before{background:transparent;border-color:#555}
+.tl-step h4{font-size:14px;margin-bottom:2px}
+.tl-step.done h4{color:#4caf50}.tl-step.active h4{color:#f0c040}.tl-step.future h4{color:#888}
+.tl-step p{font-size:12px;color:#aaa;line-height:1.5}
+
+/* Comparison */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:700px){.cmp{grid-template-columns:1fr}}
+.cmp-card{padding:14px;border-radius:10px;text-align:center}
+.cmp-card h4{font-size:13px;margin-bottom:6px}
+.cmp-card.good{background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2)}.cmp-card.good h4{color:#4caf50}
+.cmp-card.bad{background:rgba(239,83,80,.08);border:1px solid rgba(239,83,80,.2)}.cmp-card.bad h4{color:#ef5350}
+.cmp-card ul{list-style:none;text-align:left;font-size:12px;color:#bbb;line-height:1.7}
+.cmp-card ul li::before{content:'• ';font-weight:700}
+.cmp-card.good ul li::before{color:#4caf50}.cmp-card.bad ul li::before{color:#ef5350}
+
+/* Checklist */
+.checklist{margin-top:16px}
+.chk{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;margin-bottom:4px;font-size:13px;background:#0d1520}
+.chk .box{width:18px;height:18px;border-radius:4px;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4caf50}
+.chk.done .box{border-color:#4caf50;background:rgba(76,175,80,.15)}
+.chk .txt{color:#bbb}
+
+.footer{text-align:center;margin-top:24px;font-size:11px;color:#444}
+</style></head><body><div class="ctn">
+
+<a class="back" href="london-system-interactive.html">← 返回分支探索器</a>
+
+<header>
+  <h1>♟ 伦敦体系 · 理想阵型 Shape</h1>
+  <p>你的目标阵型是什么？每个子去哪里？如何到达？</p>
+</header>
+
+<!-- DUAL BOARDS: Ideal vs Failed -->
+<div class="dual">
+  <div class="panel">
+    <h2 class="good">✅ 理想阵型（发展完成）</h2>
+    <div class="brd" id="goodBoard"></div>
+    <div class="cr"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>
+    <div class="legend">
+      <span><div class="sq" style="border-color:#4caf50"></div>已到位</span>
+      <span><div class="sq" style="border-color:#f0c040"></div>关键格</span>
+      <span><div class="sq" style="border-color:#42a5f5"></div>突破目标</span>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 class="bad">❌ 失败阵型（常见错误）</h2>
+    <div class="brd" id="badBoard"></div>
+    <div class="cr"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>
+    <div class="legend">
+      <span><div class="sq" style="border-color:#ef5350"></div>错误位置</span>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison list -->
+<div class="cmp">
+  <div class="cmp-card good">
+    <h4>✅ 你做对了什么</h4>
+    <ul>
+      <li>Bf4 在 e3 之前出去了，控制 e5</li>
+      <li>金字塔兵阵 d4-e3-c3 稳固</li>
+      <li>Bd3 瞄准 h7，随时可以进攻</li>
+      <li>Nbd2 支撑 e4 突破</li>
+      <li>Qe2 连接双车，准备 e4</li>
+      <li>所有子力协调，指向同一个目标</li>
+    </ul>
+  </div>
+  <div class="cmp-card bad">
+    <h4>❌ 常见发展错误</h4>
+    <ul>
+      <li>e3 先于 Bf4 → 暗格象被锁死在 c1</li>
+      <li>c3 太早 → Nc3 路线被堵</li>
+      <li>Nf3 太早 → f 兵无法推进</li>
+      <li>Bd3 对 KID → 被 Nh5-f4 骚扰</li>
+      <li>dxc5 吃兵 → 中心优势消失</li>
+      <li>子力分散，没有统一目标</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PIECE DEVELOPMENT GUIDE -->
+<h2 style="color:#f0c040;font-size:18px;margin:24px 0 12px">🧩 每个子的发展路线</h2>
+
+<div class="pieces">
+  <div class="pc bf4">
+    <h3><span class="icon">♝</span>暗格象 → f4（→ g3）</h3>
+    <p><strong>第一优先级！</strong>必须在 e3 之前出去。<br>
+    控制 e5 核心格，瞄准 b8-h2 对角线。<br>
+    如果黑方 ...Bd6 想交换 → 退到 g3 保留张力。<br>
+    Nxg3 hxg3 → 打开 h 线变成攻击通道。</p>
+  </div>
+  <div class="pc bd3">
+    <h3><span class="icon">♗</span>亮格象 → d3</h3>
+    <p>在 e3 之后出去，瞄准 h7。<br>
+    配合 Ne5 和 Qh5 可以组织希腊礼物 Bxh7+。<br>
+    <strong>注意：</strong>对 KID（...g6）用 Be2 代替 Bd3。</p>
+  </div>
+  <div class="pc nd2">
+    <h3><span class="icon">♞</span>左马 → d2</h3>
+    <p><strong>先于右马发展！</strong><br>
+    Nbd2 支撑 e4 突破（d2→e4 或 d2→f3→e5）。<br>
+    保留 f 兵推进的选项（f3 支撑 e4）。<br>
+    如果先走 c3 会堵住 Nc3 → 只能去 d2。</p>
+  </div>
+  <div class="pc nf3">
+    <h3><span class="icon">♞</span>右马 → f3（→ e5）</h3>
+    <p><strong>最后发展！</strong>Ne5 是伦敦的梦想格。<br>
+    从 e5 可以跳到 f7/d7/c6/g4。<br>
+    推迟 Nf3 是为了保留 f3 推兵的选项。<br>
+    在标准伦敦中通常第 4-5 步才出。</p>
+  </div>
+  <div class="pc qe2">
+    <h3><span class="icon">♕</span>后 → e2</h3>
+    <p>支援 e4 突破的最后一块拼图。<br>
+    Qe2 连接双车 + 支持 e3→e4 推进。<br>
+    也可以转向 Qh5 参与王翼进攻。<br>
+    在所有子力就位后才出后。</p>
+  </div>
+  <div class="pc pawn">
+    <h3><span class="icon">♟</span>兵阵：金字塔 d4-e3-c3</h3>
+    <p>d4 是基石，e3 巩固，c3 封顶。<br>
+    <strong>c3 最后推！</strong>在 Nbd2 之后才走。<br>
+    这个结构坚不可摧，为 e4 提供基础。<br>
+    永远不要 dxc5 吃兵 → 破坏自己的中心。</p>
+  </div>
+</div>
+
+<!-- STRATEGIC OBJECTIVE -->
+<div class="obj">
+  <h2>🎯 战略目标：e4 突破</h2>
+  <p style="color:#aaa;font-size:13px;margin-bottom:16px">整个伦敦体系的出子计划都是为了一个目标——推 e4 打开中心。以下是到达目标的路线图：</p>
+
+  <div class="timeline">
+    <div class="tl-step done">
+      <h4>Phase 1：暗格象出动（第 2 步）</h4>
+      <p>Bf4 — 在 e3 锁住对角线之前出去。这是整个计划的前提。</p>
+    </div>
+    <div class="tl-step done">
+      <h4>Phase 2：巩固中心（第 3 步）</h4>
+      <p>e3 — 保护 d4，为 Bd3 腾出空间。此时暗格象已经安全在外面。</p>
+    </div>
+    <div class="tl-step done">
+      <h4>Phase 3：亮格象就位（第 4-5 步）</h4>
+      <p>Bd3 / Be2 — 瞄准 h7（潜在的希腊礼物），或灵活控制局面。</p>
+    </div>
+    <div class="tl-step done">
+      <h4>Phase 4：左马支撑（第 6 步）</h4>
+      <p>Nbd2 — 支撑 e4 突破的核心子力。从 d2 可以到 e4 或 f3。</p>
+    </div>
+    <div class="tl-step done">
+      <h4>Phase 5：兵阵封顶（第 7 步）</h4>
+      <p>c3 — 金字塔完成。d4 有 c3+e3 双重保护。</p>
+    </div>
+    <div class="tl-step done">
+      <h4>Phase 6：后就位（第 8 步）</h4>
+      <p>Qe2 — 后支援 e4，连接双车。所有准备工作完成。</p>
+    </div>
+    <div class="tl-step active">
+      <h4>Phase 7：右马出动（第 9 步）</h4>
+      <p>Ngf3 — 最后一个子发展。现在可以考虑 Ne5 前哨站。</p>
+    </div>
+    <div class="tl-step future">
+      <h4>Phase 8：e4 突破！🎯</h4>
+      <p>e3→e4! — 打开中心，子力全部涌入。这是你整个开局阶段的回报。</p>
+    </div>
+  </div>
+</div>
+
+<!-- READINESS CHECKLIST -->
+<div class="panel">
+  <h2 style="color:#f0c040">📋 e4 突破前的检查清单</h2>
+  <p style="color:#888;font-size:12px;margin-bottom:12px">在推 e4 之前，确认以下条件都满足：</p>
+  <div class="checklist">
+    <div class="chk done"><div class="box">✓</div><div class="txt">Bf4 已经出去（不被 e3 锁住）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">Bd3 或 Be2 就位（瞄准对角线）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">Nbd2 已发展（支撑 e4）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">c3 已推（金字塔完成，d4 稳固）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">Qe2 就位（后支援 e4）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">王已短易位（安全）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">Re1 支援 e 线（可选但理想）</div></div>
+    <div class="chk done"><div class="box">✓</div><div class="txt">黑方没有强力反击手段（如 ...c5 已被 c3 化解）</div></div>
+  </div>
+</div>
+
+<!-- MNEMONIC -->
+<div class="panel" style="text-align:center;margin-top:20px;background:linear-gradient(135deg,#1a2a4e,#16213e)">
+  <h2 style="color:#f0c040;font-size:20px;margin-bottom:8px">🧠 出子口诀</h2>
+  <p style="font-size:28px;color:#f0c040;font-weight:700;letter-spacing:2px;margin:12px 0">象先兵后 · 左先右后 · 兵阵最后</p>
+  <p style="font-size:14px;color:#aaa;margin-top:8px">Bf4 → e3 → Bd3 → Nbd2 → c3 → Qe2 → Ngf3 → O-O → e4!</p>
+</div>
+
+<div class="footer">
+  <a href="london-system-interactive.html" style="color:#4fc3f7;text-decoration:none">← 返回 Stockfish 分支探索器</a>
+</div>
+
+</div>
+
+<script>
+const P={K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+const WP=new Set('KQRBNP'.split(''));
+
+function drawBoard(id, fen, highlights) {
+  const rows = fen.split('/'), el = document.getElementById(id);
+  el.innerHTML = '';
+  const board = [];
+  for (const row of rows) {
+    const r = [];
+    for (const c of row) {
+      if (c >= '1' && c <= '8') for (let i = 0; i < +c; i++) r.push('');
+      else r.push(c);
+    }
+    board.push(r);
+  }
+  for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) {
+    const sq = document.createElement('div');
+    sq.className = 's ' + ((r + f) % 2 === 0 ? 'l' : 'd');
+    const coord = String.fromCharCode(97 + f) + (8 - r);
+    const pc = board[r][f];
+    if (pc) {
+      sq.textContent = P[pc] || '';
+      sq.classList.add(WP.has(pc) ? 'wp' : 'bp');
+    }
+    if (highlights && highlights[coord]) sq.classList.add(highlights[coord]);
+    el.appendChild(sq);
+  }
+}
+
+// GOOD: Ideal London setup after ~10 moves
+// Position: white has Bf4→g3, Bd3, Nbd2, Nf3, Qe2, pawns d4-e3-c3, O-O
+// r1b2rk1/pppnqppp/3bpn2/3p4/3P4/2PBPNB1/PP1NQPPP/R4RK1
+drawBoard('goodBoard', 'r1b2rk1/pppnqppp/3bpn2/3p4/3P4/2PBPNB1/PP1NQPPP/R4RK1', {
+  'g3': 'glow-green', // Bf4→g3 correct
+  'd3': 'glow-green', // Bd3 correct
+  'd2': 'glow-green', // Nbd2 correct
+  'f3': 'glow-green', // Nf3 correct
+  'e2': 'glow-green', // Qe2 correct
+  'g1': 'glow-green', // King castled
+  'd4': 'glow-gold',  // pyramid
+  'e3': 'glow-gold',  // pyramid
+  'c3': 'glow-gold',  // pyramid
+  'e4': 'glow-blue',  // breakthrough target
+});
+
+// BAD: Common mistakes - bishop trapped, pieces uncoordinated
+// e3 played before Bf4, bishop stuck on c1, knight on a3, no plan
+// r1bqk2r/pppn1ppp/3bpn2/3p4/3P4/N3P3/PPP1BPPP/R1BQK1NR
+drawBoard('badBoard', 'r1bqk2r/pppn1ppp/3bpn2/3p4/3P4/N3P3/PPP1BPPP/R1BQK1NR', {
+  'c1': 'glow-red', // bishop TRAPPED
+  'a3': 'glow-red', // knight on rim
+  'g1': 'glow-red', // knight undeveloped
+  'e1': 'glow-red', // king not castled
+});
+</script>
+</body></html>
