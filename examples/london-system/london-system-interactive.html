@@ -708,35 +708,71 @@ function updBranches(vk,idx){
 function renderBlackBranch(opt) {
   if (!opt) return;
   const line = opt.l || [];
-  
+
   const bl = document.getElementById('bline');
-  let h = `<div class="bstep a"><span class="sn">♚ ...${opt.s}</span><span class="cv ${opt.c>20?'pos':opt.c<-20?'neg':'ev'}">${(opt.c/100).toFixed(2)}</span><div class="bar"><div style="width:${Math.min(100,Math.max(0,50+opt.c/6))}%;background:${opt.c>0?'#4caf50':'#ef5350'}"></div></div></div>`;
-  
+  let h = '';
+
+  // Step 0: current position (same as left board)
+  h += `<div class="bstep${rpScrollStep===0?' a':''}" onclick="rpScrollStep=0;renderBlackBranch(curBlackOptObj);" style="cursor:pointer">`;
+  h += `<span class="sn">当前局面</span>`;
+  const mainCp = SF[V[curV].sk]?.[curS]?.c || 0;
+  h += `<span class="cv ${mainCp>20?'pos':mainCp<-20?'neg':'ev'}">${(mainCp/100).toFixed(2)}</span>`;
+  h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+mainCp/6))}%;background:${mainCp>0?'#4caf50':'#ef5350'}"></div></div>`;
+  h += `</div>`;
+
+  // Step 1: the black move
+  h += `<div class="bstep${rpScrollStep===1?' a':''}" onclick="rpScrollStep=1;renderBlackBranch(curBlackOptObj);" style="cursor:pointer">`;
+  h += `<span class="sn">♚ ...${opt.s}</span>`;
+  h += `<span class="cv ${opt.c>20?'pos':opt.c<-20?'neg':'ev'}">${(opt.c/100).toFixed(2)}</span>`;
+  h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+opt.c/6))}%;background:${opt.c>0?'#4caf50':'#ef5350'}"></div></div>`;
+  h += `</div>`;
+
+  // Step 2+: response line
   line.forEach((p, i) => {
+    const stepN = i + 2;
     const isW = i % 2 === 0;
-    h += `<div class="bstep" onclick="showBBS(${i})" style="cursor:pointer">`;
+    h += `<div class="bstep${rpScrollStep===stepN?' a':''}" onclick="rpScrollStep=${stepN};renderBlackBranch(curBlackOptObj);" style="cursor:pointer">`;
     h += `<span class="sn">${isW?'♔':'♚'} ${p.s}</span>`;
     h += `<span class="cv ${p.c>20?'pos':p.c<-20?'neg':'ev'}">${(p.c/100).toFixed(2)}</span>`;
     h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+p.c/6))}%;background:${p.c>0?'#4caf50':'#ef5350'}"></div></div>`;
     h += `</div>`;
   });
   bl.innerHTML = h;
-  
-  // Show on branch board
-  if (line.length > 0) dB('bb', line[0].f, '', '');
-  
-  // Explain
-  const respStr = line.slice(0,3).map(p=>p.s).join(' → ');
-  const finalCp = line.length > 0 ? line[line.length-1].c : opt.c;
-  let ex = `黑方走 ...${opt.s}（${(opt.c/100).toFixed(2)}）\n\n你的最佳应对：${respStr}\n\n`;
-  if (finalCp > 30) ex += `✅ 应对后白方保持优势（${(finalCp/100).toFixed(2)}）`;
-  else if (finalCp > -30) ex += `⚖️ 应对后接近均势（${(finalCp/100).toFixed(2)}）`;
-  else ex += `⚠️ 黑方强手，白方需精确操作（${(finalCp/100).toFixed(2)}）`;
-  document.getElementById('rsc').innerHTML = `<div class="ml">♚ ...${opt.s} → ♔ 应对</div><div class="ct">${ex.replace(/\n/g,'<br>')}</div>`;
-  
+
+  // Render right board based on rpScrollStep
+  if (rpScrollStep === 0) {
+    // Same as left board
+    const step = V[curV].mv[curS];
+    dB('bb', step.fen, step.f, step.t);
+    dA2(step.a || []);
+    document.getElementById('rsc').innerHTML = `<div class="ml">当前局面</div><div class="ct">向下滚轮查看黑方 ...${opt.s} 之后的发展</div>`;
+  } else if (rpScrollStep === 1) {
+    // After black's move - show first response position if available
+    if (line.length > 0) { dB('bb', line[0].f, '', ''); dA2([]); }
+    const respStr = line.slice(0,3).map(p=>p.s).join(' → ');
+    document.getElementById('rsc').innerHTML = `<div class="ml">♚ ...${opt.s}</div><div class="ct">黑方走了 ...${opt.s}。你的最佳应对：${respStr}</div>`;
+  } else {
+    const lineIdx = rpScrollStep - 2;
+    if (line[lineIdx]) {
+      dB('bb', line[lineIdx].f, '', '');
+      const p = line[lineIdx];
+      const isW = lineIdx % 2 === 0;
+      // Draw intent arrows
+      const prevCp = lineIdx > 0 ? line[lineIdx-1].c : opt.c;
+      const arrows = branchArrows('', '', p.c, prevCp, isW);
+      dA2(arrows.filter(a=>a.from&&a.to));
+      const cv = (p.c/100).toFixed(2);
+      let explain = `${isW?'♔ 白方':'♚ 黑方'}走 ${p.s}　评分：${cv}`;
+      if (p.c > prevCp + 20) explain += `\n🟢 白方改善了局面`;
+      else if (p.c < prevCp - 20) explain += `\n🔴 黑方获得优势`;
+      document.getElementById('rsc').innerHTML = `<div class="ml">${p.s}　${cv}</div><div class="ct">${explain.replace(/\n/g,'<br>')}</div>`;
+    }
+  }
+
   curBlackOpt = curBr;
-  curBrBlackStep = -1;
+  curBlackOptObj = opt;
 }
+var curBlackOptObj = null;
 
 function showBBS(lineIdx) {
   const bmVar = BM[V[curV].sk];
@@ -757,14 +793,30 @@ function renderSubtleBranch(subIdx) {
   if (!wmStep) return;
   const sm = wmStep.sub[subIdx];
   if (!sm) return;
-  
+
   const line = sm.l || [];
   const bl = document.getElementById('bline');
-  let h = `<div class="bstep a"><span class="sn">${sm.s}</span><span class="cv ${sm.c>0?'pos':'neg'}">${(sm.c/100).toFixed(2)}</span><div class="bar"><div style="width:${Math.min(100,Math.max(0,50+sm.c/6))}%;background:${sm.c>0?'#4caf50':'#ef5350'}"></div></div><span class="tag drop">-${(sm.loss/100).toFixed(2)}</span></div>`;
-  
+  let h = '';
+
+  // Step 0: current position
+  h += `<div class="bstep${rpScrollStep===0?' a':''}" onclick="rpScrollStep=0;renderSubtleBranch(${subIdx})" style="cursor:pointer">`;
+  h += `<span class="sn">当前局面</span>`;
+  const mainCp = SF[V[curV].sk]?.[curS]?.c || 0;
+  h += `<span class="cv ${mainCp>20?'pos':mainCp<-20?'neg':'ev'}">${(mainCp/100).toFixed(2)}</span>`;
+  h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+mainCp/6))}%;background:${mainCp>0?'#4caf50':'#ef5350'}"></div></div>`;
+  h += `</div>`;
+
+  // Step 1: the subtle mistake move
+  h += `<div class="bstep${rpScrollStep===1?' a':''}" onclick="rpScrollStep=1;renderSubtleBranch(${subIdx})" style="cursor:pointer">`;
+  h += `<span class="sn">${sm.s}</span><span class="cv ${sm.c>0?'pos':'neg'}">${(sm.c/100).toFixed(2)}</span>`;
+  h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+sm.c/6))}%;background:${sm.c>0?'#4caf50':'#ef5350'}"></div></div>`;
+  h += `<span class="tag drop">-${(sm.loss/100).toFixed(2)}</span></div>`;
+
+  // Step 2+: consequence line
   line.forEach((p, i) => {
+    const stepN = i + 2;
     const isDrop = i === sm.wi;
-    h += `<div class="bstep${isDrop?' drop':''}" onclick="showSSt(${subIdx},${i})" style="cursor:pointer">`;
+    h += `<div class="bstep${rpScrollStep===stepN?' a':''}${isDrop?' drop':''}" onclick="rpScrollStep=${stepN};renderSubtleBranch(${subIdx})" style="cursor:pointer">`;
     h += `<span class="sn">${p.s}</span>`;
     h += `<span class="cv ${p.c>20?'pos':p.c<-20?'neg':'ev'}">${(p.c/100).toFixed(2)}</span>`;
     h += `<div class="bar"><div style="width:${Math.min(100,Math.max(0,50+p.c/6))}%;background:${p.c>0?'#4caf50':'#ef5350'}"></div></div>`;
@@ -772,16 +824,36 @@ function renderSubtleBranch(subIdx) {
     h += `</div>`;
   });
   bl.innerHTML = h;
-  
-  // Show worst position
-  if (sm.wi >= 0 && line[sm.wi]) dB('bb', line[sm.wi].f, '', '');
-  else if (line.length > 0) dB('bb', line[line.length-1].f, '', '');
-  
+
+  // Render right board based on rpScrollStep
   const tag = sm.tag==='subtle'?'🟡 微妙失准':sm.tag==='inaccuracy'?'🟠 计算陷阱':'🔴 严重隐患';
-  const totalLoss = sm.tl/100;
-  let why = totalLoss>1.5?`${sm.wi+1}步后可能丢子`:totalLoss>0.8?`${sm.wi+1}步后可能丢兵`:`逐渐失去位置优势`;
-  let ex = `走 ${sm.s} 比最佳差 ${(sm.loss/100).toFixed(2)}\n\n${why}（累计 -${totalLoss.toFixed(1)}）\n\n后续：${line.map(p=>p.s).join(' → ')}`;
-  document.getElementById('rsc').innerHTML = `<div class="ml">${tag} · ${sm.s}</div><div class="ct">${ex.replace(/\n/g,'<br>')}</div>`;
+  if (rpScrollStep === 0) {
+    const step = V[curV].mv[curS];
+    dB('bb', step.fen, step.f, step.t);
+    dA2(step.a || []);
+    document.getElementById('rsc').innerHTML = `<div class="ml">当前局面</div><div class="ct">向下滚轮查看走 ${sm.s} 的后果</div>`;
+  } else if (rpScrollStep === 1) {
+    if (line.length > 0) { dB('bb', line[0].f, '', ''); dA2([]); }
+    const totalLoss = sm.tl/100;
+    let why = totalLoss>1.5?`可能丢子`:totalLoss>0.8?`可能丢兵`:`逐渐失去位置优势`;
+    document.getElementById('rsc').innerHTML = `<div class="ml">${tag} · ${sm.s}</div><div class="ct">比最佳差 ${(sm.loss/100).toFixed(2)}。${why}（累计 -${totalLoss.toFixed(1)}）</div>`;
+  } else {
+    const lineIdx = rpScrollStep - 2;
+    if (line[lineIdx]) {
+      dB('bb', line[lineIdx].f, '', '');
+      const p = line[lineIdx];
+      const prevCp = lineIdx > 0 ? line[lineIdx-1].c : sm.c;
+      const arrows = branchArrows('', '', p.c, prevCp, lineIdx % 2 === 1);
+      dA2(arrows.filter(a=>a.from&&a.to));
+      const cv = (p.c/100).toFixed(2);
+      const isDrop = lineIdx === sm.wi;
+      let explain = `${p.s}　评分：${cv}`;
+      if (isDrop) explain += `\n⚠️ 这是丢分最大的转折点！`;
+      if (p.c > prevCp + 20) explain += `\n🟢 白方改善`;
+      else if (p.c < prevCp - 20) explain += `\n🔴 黑方获益`;
+      document.getElementById('rsc').innerHTML = `<div class="ml">${p.s}　${cv}</div><div class="ct">${explain.replace(/\n/g,'<br>')}</div>`;
+    }
+  }
 }
 
 function showSSt(subIdx, lineIdx) {
@@ -937,69 +1009,97 @@ document.getElementById('rp')?.addEventListener('wheel',e=>{
   const sfV = SF[V[curV].sk];
   const isBlack = sfV && sfV[curS] && sfV[curS].t === 'b';
 
+  // UNIFIED SCROLL: all branch types use the same logic
+  // rpScrollStep 0 = current position (same as left board)
+  // rpScrollStep 1+ = branch-specific steps
+  // Scroll down = rpScrollStep++, scroll up = rpScrollStep--, clamp at 0 and max
+
+  // Calculate max step for current branch type
+  let maxStep = 0;
+
   if (isBlack) {
-    // BLACK TURN: scroll through selected black option's response line
     const bmVar = BM[V[curV].sk];
     if (!bmVar) return;
     const bmStep = bmVar.find(s => s.step === curS);
     if (!bmStep || !bmStep.opts[curBr]) return;
     const line = bmStep.opts[curBr].l || [];
-    if (line.length === 0) return;
+    maxStep = line.length; // 0=current, 1..N=line steps
+  } else {
+    const allTabs = document.querySelectorAll('#btabs .bt');
+    if (allTabs.length === 0) return;
+    const activeTab = allTabs[curBr];
+    const isSubtle = activeTab && activeTab.textContent.match(/[🟡🟠🔴]/);
 
-    if (e.deltaY > 0) {
-      // scroll down: advance one step, max = last step
-      if (rpScrollStep < line.length - 1) { rpScrollStep++; showBBS(rpScrollStep); }
+    if (isSubtle) {
+      const wmVar = WM[V[curV].sk];
+      if (!wmVar) return;
+      const wmStep = wmVar.find(s => s.step === curS);
+      if (!wmStep) return;
+      let subtleIdx = 0;
+      for (let i = 0; i < curBr; i++) {
+        if (allTabs[i] && allTabs[i].textContent.match(/[🟡🟠🔴]/)) subtleIdx++;
+      }
+      const sm = wmStep.sub[subtleIdx];
+      if (!sm || !sm.l) return;
+      maxStep = sm.l.length; // 0=current, 1..N=consequence steps
     } else {
-      // scroll up: go back one step, but clamp at 0 (first step), never go below
-      if (rpScrollStep > 0) { rpScrollStep--; showBBS(rpScrollStep); }
-      // at 0 or -1: do nothing, stay on first step
+      if (!sfV || !sfV[curS]) return;
+      const br = sfV[curS].b?.[curBr];
+      if (!br || !br.l) return;
+      maxStep = br.l.length + 1; // 0=current, 1=branch move, 2..N+1=continuation
     }
-    return;
   }
 
-  // WHITE TURN: figure out what's currently selected
-  const allTabs = document.querySelectorAll('#btabs .bt');
-  if (allTabs.length === 0) return;
-
-  const activeTab = allTabs[curBr];
-  const isSubtle = activeTab && activeTab.textContent.match(/[🟡🟠🔴]/);
-
-  if (isSubtle) {
-    // Scrolling through a subtle mistake's consequence line
-    const wmVar = WM[V[curV].sk];
-    if (!wmVar) return;
-    const wmStep = wmVar.find(s => s.step === curS);
-    if (!wmStep) return;
-    const sfBranches = (sfV && sfV[curS]) ? sfV[curS].b || [] : [];
-    let subtleIdx = 0;
-    let count = 0;
-    for (let i = 0; i < curBr; i++) {
-      const t = allTabs[i];
-      if (t && t.textContent.match(/[🟡🟠🔴]/)) count++;
-    }
-    subtleIdx = count;
-
-    const sm = wmStep.sub[subtleIdx];
-    if (!sm || !sm.l) return;
-    const line = sm.l;
-
-    if (e.deltaY > 0) {
-      if (rpScrollStep < line.length - 1) { rpScrollStep++; showSSt(subtleIdx, rpScrollStep); }
-    } else {
-      if (rpScrollStep > 0) { rpScrollStep--; showSSt(subtleIdx, rpScrollStep); }
-      // at 0 or below: do nothing, stay on first step
-    }
+  // Apply scroll
+  const oldStep = rpScrollStep;
+  if (e.deltaY > 0) {
+    if (rpScrollStep < maxStep) rpScrollStep++;
   } else {
-    // Scrolling through SF branch — now uses renderBranch() which handles arrows + step 0
-    if (!sfV || !sfV[curS]) return;
-    const br = sfV[curS].b?.[curBr];
-    if (!br || !br.l) return;
-    const maxS = br.l.length + 1; // step 0=current, 1=branch move, 2..N+1=continuation
+    if (rpScrollStep > 0) rpScrollStep--;
+  }
+  if (rpScrollStep === oldStep) return; // no change, don't re-render
 
-    if (e.deltaY > 0) {
-      if (rpScrollStep < maxS) { rpScrollStep++; renderBranch(); }
+  // Re-render the appropriate branch type at the new step
+  if (isBlack) {
+    const bmVar = BM[V[curV].sk];
+    const bmStep = bmVar.find(s => s.step === curS);
+    const opt = bmStep.opts[curBr];
+    if (rpScrollStep === 0) {
+      // Step 0: show current position (same as left board)
+      const step = V[curV].mv[curS];
+      dB('bb', step.fen, step.f, step.t);
+      dA2(step.a || []);
+      document.getElementById('rsc').innerHTML = `<div class="ml">当前局面</div><div class="ct">向下滚轮查看黑方 ...${opt.s} 的后续发展</div>`;
     } else {
-      if (rpScrollStep > 0) { rpScrollStep--; renderBranch(); }
+      const lineIdx = rpScrollStep - 1;
+      showBBS(lineIdx);
+    }
+    // Update timeline highlights
+    document.querySelectorAll('#bline .bstep').forEach((el, i) => el.classList.toggle('a', i === rpScrollStep));
+  } else {
+    const allTabs = document.querySelectorAll('#btabs .bt');
+    const activeTab = allTabs[curBr];
+    const isSubtle = activeTab && activeTab.textContent.match(/[🟡🟠🔴]/);
+
+    if (isSubtle) {
+      const wmVar = WM[V[curV].sk];
+      const wmStep = wmVar.find(s => s.step === curS);
+      let subtleIdx = 0;
+      for (let i = 0; i < curBr; i++) {
+        if (allTabs[i] && allTabs[i].textContent.match(/[🟡🟠🔴]/)) subtleIdx++;
+      }
+      if (rpScrollStep === 0) {
+        const step = V[curV].mv[curS];
+        dB('bb', step.fen, step.f, step.t);
+        dA2(step.a || []);
+        document.getElementById('rsc').innerHTML = `<div class="ml">当前局面</div><div class="ct">向下滚轮查看该走法的后果</div>`;
+      } else {
+        showSSt(subtleIdx, rpScrollStep - 1);
+      }
+      document.querySelectorAll('#bline .bstep').forEach((el, i) => el.classList.toggle('a', i === rpScrollStep));
+    } else {
+      // SF branch — renderBranch handles everything via rpScrollStep
+      renderBranch();
     }
   }
 },{passive:false});
